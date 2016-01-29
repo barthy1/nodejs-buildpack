@@ -22,9 +22,18 @@ install_nodejs() {
   fi
 
   echo "Downloading and installing node $version..."
-  local download_url="http://s3pository.heroku.com/node/v$version/node-v$version-$os-$cpu.tar.gz"
-  (curl `translate_dependency_url $download_url` -s --fail -o - | tar xzf - -C /tmp)  || (echo -e "\n-----> Resource $download_url does not exist." 1>&2 ; exit 22)
-  mv /tmp/node-v$version-$os-$cpu/* $dir
+ # Install node runtime
+  if [ -f "$BP_DIR/admin_cache/node/v$version/node-v$version-linux-ppcle64.tar.gz" ]; then
+  # Try fetch IBM node runtime from admin cache
+    echo "Installing IBM SDK for Node.js from admin cache"
+    tar xzf $BP_DIR/admin_cache/node/v$version/node-v$version-linux-ppcle64.tar.gz -C /tmp
+    mv /tmp/node-v$version-linux-ppcle64/* $dir
+
+  else
+    local download_url="http://s3pository.heroku.com/node/v$version/node-v$version-$os-$cpu.tar.gz"
+    (curl `translate_dependency_url $download_url` -s --fail -o - | tar xzf - -C /tmp)  || (echo -e "\n-----> Resource $download_url does not exist." 1>&2 ; exit 22)
+    mv /tmp/node-v$version-$os-$cpu/* $dir
+  fi  
   chmod +x $dir/bin/*
 }
 

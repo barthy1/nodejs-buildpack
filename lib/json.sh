@@ -12,6 +12,9 @@ get_cpu() {
 
 os=$(get_os)
 cpu=$(get_cpu)
+if [ "`uname -m`" == "ppc64le" ]; then
+os="$os-ppc64le"
+fi
 export JQ="$BP_DIR/vendor/jq-$os"
 
 read_json() {
