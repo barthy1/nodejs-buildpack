@@ -23,10 +23,10 @@ install_nodejs() {
 
   echo "Downloading and installing node $version..."
  # Install node runtime
-  if [ -f "$BP_DIR/admin_cache/node/v$version/node-v$version-linux-ppcle64.tar.gz" ]; then
+  if [ -f "$BP_DIR/dependencies/node/v$version/node-v$version-linux-ppcle64.tar.gz" ]; then
   # Try fetch IBM node runtime from admin cache
     echo "Installing IBM SDK for Node.js from admin cache"
-    tar xzf $BP_DIR/admin_cache/node/v$version/node-v$version-linux-ppcle64.tar.gz -C /tmp
+    tar xzf $BP_DIR/dependencies/node/v$version/node-v$version-linux-ppcle64.tar.gz -C /tmp
     mv /tmp/node-v$version-linux-ppcle64/* $dir
 
   else
