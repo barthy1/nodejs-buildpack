@@ -6,6 +6,9 @@ This is based on the [Heroku buildpack] (https://github.com/heroku/heroku-buildp
 
 Additional documentation can be found at the [CloudFoundry.org](http://docs.cloudfoundry.org/buildpacks/).
 
+This version was adopted to support ppc64le architecture.
+This version cannot be used without manual manipulations to get Node.js binaries. See the [IBM SDK for Node.js](#ibm-sdk-for-nodejs) section.
+
 ## Usage
 
 This buildpack will get used if you have a `package.json` file in your project's root directory.
@@ -57,6 +60,32 @@ In cached mode, [use the semver node_module](bin/compile#L30-32) (as opposed to 
   cf create-buildpack custom_node_buildpack node_buildpack-offline-custom.zip 1
   cf push my_app -b custom_node_buildpack
   ```
+
+## IBM SDK for Node.js
+
+You need to download appropriate version of Node.js from [IBM SDK for Node.js](https://developer.ibm.com/node/sdk) and install it.
+The following instructions expect that Node.js will be installed to `~/ibm/node/bin`, nodejs-buildpack code is cloned to `~/nodejs-buildpack` and Node.js version is `4.2.6`
+
+You can easily adopt it to your requirements. The instructions show how to pack installed Node.js to archive and how to build packed buildpack. After that you can use it with
+[Building](#building) instructions for upload to Cloud Foundry.
+
+```bash
+cd ~/ibm/node/bin
+ln -sf ../lib/node_modules/appmetrics/bin/appmetrics-cli.js node-hc
+ln -sf ../lib/node_modules/npm/bin/npm-cli.js npm
+\cp node ~/nodejs-buildpack/bin/node
+mkdir -p ~/nodejs-buildpack/dependencies/node/v4.2.6
+mkdir /tmp/node-v4.2.6-linux-ppcle64
+cd ../..
+cp node/* /tmp/node-v4.2.6-linux-ppcle64 -r
+cd /tmp
+tar -zcvf  ~/nodejs-buildpack/dependencies/node/v4.2.6/node-v4.3.1-linux-ppcle64.tar.gz node-v4.2.6-linux-ppcle64
+rm  -rf /tmp/node-v4.2.6-linux-ppcle64
+cd ~/nodejs-buildpack
+
+BUNDLE_GEMFILE=cf.Gemfile bundle
+BUNDLE_GEMFILE=cf.Gemfile bundle exec buildpack-packager --use-custom-manifest=manifest-including-unsupported.yml uncached
+```
 
 ## Supported binary dependencies
 
