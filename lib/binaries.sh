@@ -41,7 +41,7 @@ install_nodejs() {
   echo "Downloaded [$filtered_url]"
   tar xzf /tmp/node.tar.gz -C /tmp
   rm -rf $dir/*
-  mv /tmp/node-v$resolved_version-$os-$cpu/* $dir
+  mv /tmp/node-v$resolved_version-$os-$ext_cpu/* $dir
   chmod +x $dir/bin/*
 }
 

@@ -12,7 +12,14 @@ get_cpu() {
 
 os=$(get_os)
 cpu=$(get_cpu)
-export JQ="$BP_DIR/vendor/jq-$os"
+  if [[ "$(uname -m)" = "ppc64le" ]]; then
+    ext_os="ppc64le"
+    ext_cpu="ppc64le"
+  else
+    ext_os=$os
+    ext_cpu=$cpu
+  fi
+export JQ="$BP_DIR/vendor/jq-$ext_os"
 
 read_json() {
   local file=$1
