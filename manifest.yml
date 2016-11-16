@@ -2,7 +2,7 @@
 language: nodejs
 default_versions:
 - name: node
-  version: 0.10.47
+  version: 4.6.1
 exclude_files:
 - ".git/"
 - ".gitignore"
@@ -22,5 +22,35 @@ dependencies:
     version: 0.10.47
     uri: https://s3.amazonaws.com/buildpacks-store/concourse-binaries/node/node-0.10.47-linux-ppc64le.tgz
     md5: b7694cf2ae04231b3b3460b634c70c39
+    cf_stacks:
+      - cflinuxfs2
+  - name: node
+    version: 0.12.16
+    uri: https://s3.amazonaws.com/buildpacks-store/concourse-binaries/node/node-0.12.16-linux-ppc64le.tgz
+    md5: 474a6963d143146c064cc9ac17af899f
+    cf_stacks:
+      - cflinuxfs2
+  - name: node
+    version: 5.11.1
+    uri: https://s3.amazonaws.com/buildpacks-store/concourse-binaries/node/node-5.11.1-linux-ppc64le.tgz
+    md5: ad250bba07036206eff317aed6120e9f
+    cf_stacks:
+      - cflinuxfs2
+  - name: node
+    version: 5.12.0
+    uri: https://s3.amazonaws.com/buildpacks-store/concourse-binaries/node/node-5.12.0-linux-ppc64le.tgz
+    md5: 181841f768c0e2e1e2274eb0a73bf386
+    cf_stacks:
+      - cflinuxfs2
+  - name: node
+    version: 4.6.1
+    uri: https://s3.amazonaws.com/buildpacks-store/concourse-binaries/node/node-4.6.1-linux-ppc64le.tgz
+    md5: c762578c67fe7b4a399fde3b46d65d22
+    cf_stacks:
+      - cflinuxfs2
+  - name: node
+    version: 6.9.0
+    uri: https://s3.amazonaws.com/buildpacks-store/concourse-binaries/node/node-6.9.0-linux-ppc64le.tgz
+    md5: 3dfaff1ff32d0e4a73a977ecf52ecc46
     cf_stacks:
       - cflinuxfs2
