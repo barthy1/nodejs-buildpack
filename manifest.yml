@@ -60,3 +60,9 @@ dependencies:
   md5: 17e7ea35d8f7385549c0692754ddc45e
   cf_stacks:
   - cflinuxfs2
+- name: node
+  version: 4.6.1
+  uri: https://s3.amazonaws.com/dev-power-buildpacks/dependencies/node/node-4.6.1-linux-ppc64le.tgz
+  md5: 417659c77217616b2dbe390d668d5338
+  cf_stacks:
+  - cflinuxfs2
