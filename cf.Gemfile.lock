@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/barthy1/machete
-  revision: bbe23ed484268bb8795ea9d2ecbddbe35aff594c
+  revision: 57b9de39cc5bd2e7d4d4c8f34947875c409263ad
   branch: ppc64le_in_dockerfile
   specs:
     machete (0.0.59)

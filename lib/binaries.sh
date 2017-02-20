@@ -7,6 +7,43 @@ needs_resolution() {
   fi
 }
 
+install_yarn() {
+  local dir="$1"
+  local version="$2"
+
+  if needs_resolution "$version"; then
+    local yarn_default_version=$($BP_DIR/compile-extensions/bin/default_version_for $BP_DIR/manifest.yml yarn)
+    local version=$yarn_default_version
+  fi
+
+  local download_url="https://yarnpkg.com/downloads/$version/yarn-v$version.tar.gz"
+  local exit_code=0
+  local filtered_url=""
+
+  echo "Downloading and installing yarn ($version)..."
+
+  filtered_url=$($BP_DIR/compile-extensions/bin/download_dependency $download_url /tmp) || exit_code=$?
+  if [ $exit_code -ne 0 ]; then
+    echo -e "`$BP_DIR/compile-extensions/bin/recommend_dependency $download_url`" 1>&2
+    exit 22
+  fi
+  $BP_DIR/compile-extensions/bin/warn_if_newer_patch $download_url "$BP_DIR/manifest.yml"
+
+  local yarn_tar_gz="/tmp/yarn-v$version.tar.gz"
+  echo "Downloaded [$filtered_url]"
+
+  rm -rf $dir
+  mkdir -p "$dir"
+  # https://github.com/yarnpkg/yarn/issues/770
+  if tar --version | grep -q 'gnu'; then
+    tar xzf $yarn_tar_gz -C "$dir" --strip 1 --warning=no-unknown-keyword
+  else
+    tar xzf $yarn_tar_gz -C "$dir" --strip 1
+  fi
+  chmod +x $dir/bin/*
+  echo "Installed yarn $(yarn --version)"
+}
+
 install_nodejs() {
   local requested_version="$1"
   local resolved_version=$requested_version
@@ -34,6 +71,7 @@ install_nodejs() {
     echo -e "`$BP_DIR/compile-extensions/bin/recommend_dependency $heroku_url`" 1>&2
     exit 22
   fi
+  $BP_DIR/compile-extensions/bin/warn_if_newer_patch $heroku_url "$BP_DIR/manifest.yml"
 
   local downloaded_file=$(ls /tmp/node-v*.tar.gz)
   mv $downloaded_file /tmp/node.tar.gz
@@ -74,13 +112,6 @@ install_npm() {
   if [ "$version" == "" ]; then
     echo "Using default npm version: `npm --version`"
   else
-    if needs_resolution "$version"; then
-      echo "Resolving npm version ${version} via semver.io..."
-      version=$(curl --silent --get --retry 5 --retry-max-time 15 --data-urlencode "range=${version}" https://semver.herokuapp.com/npm/resolve || echo failed)
-      if [ "$version" = "failed" ]; then
-        download_failed $1
-      fi
-    fi
     if [[ `npm --version` == "$version" ]]; then
       echo "npm `npm --version` already installed with node"
     else

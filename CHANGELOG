@@ -1,3 +1,105 @@
+v1.5.29 Feb 07, 2017
+=====================
+
+* Add EOL dates for node
+  (https://www.pivotaltracker.com/story/show/137288317)
+
+* Add node 7.5.0, remove node 7.3.0
+  (https://www.pivotaltracker.com/story/show/138780181)
+
+* Add node 6.9.5, remove node 6.9.3
+  (https://www.pivotaltracker.com/story/show/138771375)
+
+* Add node 4.7.3, remove node 4.7.1
+  (https://www.pivotaltracker.com/story/show/138773607)
+
+* Add yarn 0.20.0, remove yarn 0.19.1
+  (https://www.pivotaltracker.com/story/show/138614091)
+
+v1.5.28 Jan 24, 2017
+=====================
+
+* Remove node 0.12.x version line
+  (https://www.pivotaltracker.com/story/show/136591333)
+
+* Remove node 5.x version line
+  (https://www.pivotaltracker.com/story/show/136591333)
+
+* Add yarn 0.19.1, remove yarn 0.19.0
+  (https://www.pivotaltracker.com/story/show/138003527)
+
+* Add yarn to cached buildpack
+  (https://www.pivotaltracker.com/story/show/136510177)
+
+v1.5.27 Jan 10, 2017
+=====================
+
+* Catch excecptions from buildpack version warning scripts
+  - Under some non-standard CF deployment configurations, it was possible for these scripts to
+  error out. As they are purely informative, this should never happen.
+  (https://www.pivotaltracker.com/story/show/137351597)
+
+v1.5.26 Jan 09, 2017
+=====================
+
+* Add warning if downloaded dependency is not the latest patch version for a
+given major and minor version
+  (https://www.pivotaltracker.com/story/show/134863437)
+
+* Add new version warning to nodejs buildpack
+  (https://www.pivotaltracker.com/story/show/135234395)
+
+* Yarn support added, activated if yarn.lock file present
+  (https://www.pivotaltracker.com/story/show/136345251)
+
+* Add node 7.4.0, remove node 7.2.1
+  (https://www.pivotaltracker.com/story/show/137044385)
+
+* Add node 7.3.0, remove node 7.2.0
+  (https://www.pivotaltracker.com/story/show/136461121)
+
+* Add node 6.9.4, remove node 6.9.2
+  (https://www.pivotaltracker.com/story/show/137135283)
+
+* Add node 6.9.3, remove node 6.9.1
+  (https://www.pivotaltracker.com/story/show/136991485)
+
+* Add node 4.7.2, remove node 4.7.0
+  (https://www.pivotaltracker.com/story/show/137135283)
+
+* Add node 4.7.1, remove node 4.6.2
+  (https://www.pivotaltracker.com/story/show/136994135)
+
+* Add node 0.12.18, remove node 0.12.16
+  (https://www.pivotaltracker.com/story/show/136501265)
+
+v1.5.25 Dec 15, 2016
+=====================
+
+* Add node 7.2.1, remove node 7.1.0
+  (https://www.pivotaltracker.com/story/show/135658433)
+
+* Add node 6.9.2, remove node 6.9.0
+  (https://www.pivotaltracker.com/story/show/135643989)
+
+* Add node 4.7.0, remove node 4.6.1
+  (https://www.pivotaltracker.com/story/show/135648535)
+
+v1.5.24 Dec 01, 2016
+=====================
+
+* Add node 7.2.0, remove node 7.0.0
+  (https://www.pivotaltracker.com/story/show/134823269)
+
+* Provide a "protip" when Node.js modules are not vendored
+  (https://www.pivotaltracker.com/story/show/116369631)
+
+* Rebuild and change path for node binaries
+  - We identified a potential, but unlikely, attack vector in our continuous
+    integration system. Our own auditing strongly suggests that this attack
+    vector was not taken advantage of. However, out of an abundance of caution,
+    we are rebuilding all buildpack dependencies that we maintain.
+
 v1.5.23 Nov 09, 2016
 =====================
 

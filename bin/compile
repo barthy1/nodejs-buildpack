@@ -8,7 +8,7 @@ unset GIT_DIR     # Avoid GIT_DIR leak from previous build steps
 
 ### Constants
 
-DEFAULT_CACHE="node_modules bower_components"
+DEFAULT_CACHE=".npm .cache/yarn bower_components"
 
 ### Configure directories
 
@@ -17,10 +17,11 @@ CACHE_DIR=${2:-}
 ENV_DIR=${3:-}
 BP_DIR=$(cd $(dirname ${0:-}); cd ..; pwd)
 $BP_DIR/compile-extensions/bin/check_stack_support
+$BP_DIR/compile-extensions/bin/check_buildpack_version $BP_DIR $CACHE_DIR
 
-mkdir -p "$BUILD_DIR/.heroku/node/"
+mkdir -p "$BUILD_DIR/.cloudfoundry/node/"
 cd $BUILD_DIR
-export PATH="$BUILD_DIR/.heroku/node/bin":$PATH
+export PATH="$BUILD_DIR/.cloudfoundry/node/bin:$BUILD_DIR/.cloudfoundry/yarn/bin":$PATH
 
 # CF Common
 export BUILDPACK_PATH=$BP_DIR
@@ -48,6 +49,7 @@ handle_failure() {
   warn_angular_resolution "$LOG_FILE"
   warn_missing_devdeps "$LOG_FILE"
   warn_econnreset "$LOG_FILE"
+  warn_young_yarn "$LOG_FILE"
   failure_message | output "$LOG_FILE"
 }
 trap 'handle_failure' ERR
@@ -55,6 +57,7 @@ trap 'handle_failure' ERR
 ### Check initial state
 
 [ -e "$BUILD_DIR/node_modules" ] && PREBUILD=true || PREBUILD=false
+[ -f "$BUILD_DIR/yarn.lock" ] && YARN=true || YARN=false
 
 node_modules_subdirs=0
 if [ -d "$BUILD_DIR/node_modules" ]; then
@@ -88,6 +91,7 @@ install_bins() {
   local node_engine=$(read_json "$BUILD_DIR/package.json" ".engines.node")
   local iojs_engine=$(read_json "$BUILD_DIR/package.json" ".engines.iojs")
   local npm_engine=$(read_json "$BUILD_DIR/package.json" ".engines.npm")
+  local yarn_engine=$(read_json "$BUILD_DIR/package.json" ".engines.yarn")
 
   if [ -n "$iojs_engine" ]; then
     echo "engines.iojs (package.json):  $iojs_engine (iojs)"
@@ -99,12 +103,15 @@ install_bins() {
 
   if [ -n "$iojs_engine" ]; then
     warn_node_engine "$iojs_engine"
-    install_iojs "$iojs_engine" "$BUILD_DIR/.heroku/node"
+    install_iojs "$iojs_engine" "$BUILD_DIR/.cloudfoundry/node"
     echo "Using bundled npm version for iojs compatibility: `npm --version`"
   else
     warn_node_engine "$node_engine"
-    install_nodejs "$node_engine" "$BUILD_DIR/.heroku/node"
-    install_npm "$npm_engine" "$BUILD_DIR/.heroku/node"
+    install_nodejs "$node_engine" "$BUILD_DIR/.cloudfoundry/node"
+    install_npm "$npm_engine" "$BUILD_DIR/.cloudfoundry/node"
+  fi
+  if $YARN; then
+    install_yarn "$BUILD_DIR/.cloudfoundry/yarn" "$yarn_engine"
   fi
 }
 
@@ -117,7 +124,7 @@ restore_cache() {
   if [ "$cache_status" == "valid" ]; then
     local cache_directories=$(get_cache_directories)
     if [ "$cache_directories" == "" ]; then
-      echo "Loading 2 from cacheDirectories (default):"
+      echo "Loading 3 from cacheDirectories (default):"
       restore_cache_directories "$BUILD_DIR" "$CACHE_DIR" "$DEFAULT_CACHE"
     else
       echo "Loading $(echo $cache_directories | wc -w | xargs) from cacheDirectories (package.json):"
@@ -132,12 +139,17 @@ header "Restoring cache"
 restore_cache | output "$LOG_FILE"
 
 build_dependencies() {
-  if $PREBUILD; then
+  run_if_present 'heroku-prebuild'
+  if $YARN; then
+    yarn_node_modules "$BUILD_DIR"
+  elif $PREBUILD; then
     echo "Prebuild detected (node_modules already exists)"
-    rebuild_node_modules "$BUILD_DIR"
+    npm_rebuild "$BUILD_DIR"
   else
-    install_node_modules "$BUILD_DIR"
+    npm_node_modules "$BUILD_DIR"
   fi
+  run_if_present 'heroku-postbuild'
+  # TODO: run_if_present 'build'
 }
 
 header "Building dependencies"
@@ -151,24 +163,27 @@ cache_build() {
   if ! ${NODE_MODULES_CACHE:-true}; then
     echo "Skipping cache save (disabled by config)"
   elif [ "$cache_directories" == "" ]; then
-    echo "Saving 2 cacheDirectories (default):"
+    echo "Saving 3 cacheDirectories (default):"
     save_cache_directories "$BUILD_DIR" "$CACHE_DIR" "$DEFAULT_CACHE"
   else
     echo "Saving $(echo $cache_directories | wc -w | xargs) cacheDirectories (package.json):"
     save_cache_directories "$BUILD_DIR" "$CACHE_DIR" $cache_directories
   fi
   save_signature
+  remove_caches_from_slug "$BUILD_DIR"
 }
 
 header "Caching build"
 cache_build | output "$LOG_FILE"
 
 summarize_build() {
-  cd $BUILD_DIR
-  (npm ls --depth=0 | tail -n +2 || true) 2>/dev/null
+  if $NODE_VERBOSE; then
+    list_dependencies "$BUILD_DIR"
+  fi
 }
 
 header "Build succeeded!"
+$BP_DIR/compile-extensions/bin/store_buildpack_metadata $BP_DIR $CACHE_DIR
 summarize_build | output "$LOG_FILE"
 
 warn_no_start "$LOG_FILE"

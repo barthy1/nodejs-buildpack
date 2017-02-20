@@ -3,11 +3,13 @@ create_default_env() {
   export NPM_CONFIG_LOGLEVEL=${NPM_CONFIG_LOGLEVEL:-error}
   export NODE_MODULES_CACHE=${NODE_MODULES_CACHE:-true}
   export NODE_ENV=${NODE_ENV:-production}
+  export NODE_VERBOSE=${NODE_VERBOSE:-false}
 }
 
 list_node_config() {
   echo ""
   printenv | grep ^NPM_CONFIG_ || true
+  printenv | grep ^YARN_ || true
   printenv | grep ^NODE_ || true
 
   if [ "$NPM_CONFIG_PRODUCTION" = "true" ] && [ "$NODE_ENV" != "production" ]; then
@@ -42,6 +44,6 @@ write_profile() {
 write_export() {
   local bp_dir="$1"
   local build_dir="$2"
-  echo "export PATH=\"$build_dir/.heroku/node/bin:\$PATH:$build_dir/node_modules/.bin\"" > $bp_dir/export
-  echo "export NODE_HOME=\"$build_dir/.heroku/node\"" >> $bp_dir/export
+  echo "export PATH=\"$build_dir/.cloudfoundry/node/bin:$build_dir/.cloudfoundry/yarn/bin:\$PATH:$build_dir/node_modules/.bin\"" > $bp_dir/export
+  echo "export NODE_HOME=\"$build_dir/.cloudfoundry/node\"" >> $bp_dir/export
 }
